@@ -3,43 +3,171 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import design from '../design.json';
+import { ToastNotification } from '../components';
+
+const API_BASE = process.env.REACT_APP_API_BASE_URL;
 
 const SafetyChecker: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [hasError, setHasError] = useState(false);
+  const [showToast, setShowToast] = useState(false);
   const url = location.state?.url || 'http://www.example.com'; // Fallback URL
 
-  // Simulate loading delay
+  // Fetch data from backend
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1500);
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        setHasError(false);
+        
+        const response = await fetch(`${API_BASE}/check-url`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ url }),
+        });
 
-    return () => clearTimeout(timer);
-  }, []);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
-  // Mock data - replace with actual backend data
-  const mockData = {
-    status: 'safe', // or 'unsafe'
-    url: url,
-    lastChecked: '2024-01-15T10:30:00Z',
-    sources: [
-      { name: 'Google Safe Browsing', result: 'safe' },
-    ]
+        const result = await response.json();
+        setData(result);
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        const errorMessage = err instanceof Error ? err.message : 'An error occurred';
+        setError(errorMessage);
+        setHasError(true);
+        setShowToast(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [url]);
+
+  // Use real data or fallback to mock data for display
+  const displayData = data || {
+    status: 'safe', // fallback
   };
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
-    
-    if (diffInDays === 0) return 'Today';
-    if (diffInDays === 1) return '1 day ago';
-    if (diffInDays < 7) return `${diffInDays} days ago`;
-    if (diffInDays < 30) return `${Math.floor(diffInDays / 7)} weeks ago`;
-    if (diffInDays < 365) return `${Math.floor(diffInDays / 30)} months ago`;
-    return `${Math.floor(diffInDays / 365)} years ago`;
-  };
+
+  // Generate "Last Checked" timestamp when data is successfully fetched
+  const lastChecked = data ? new Date().toLocaleString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  }) : '';
+
+  // Use URL from route params directly
+  const displayUrl = url;
+
+  // Error fallback UI component
+  const ErrorFallback = () => (
+    <div
+      style={{
+        backgroundColor: design.colors.backgroundAlt,
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        fontFamily: design.font.family,
+        overflowY: 'auto',
+      }}
+    >
+      {/* Back Button */}
+      <div
+        style={{
+          padding: design.spacing.lg,
+          paddingBottom: design.spacing.md,
+        }}
+      >
+        <button
+          onClick={() => navigate('/')}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: design.colors.primary,
+            fontSize: design.font.sizes.base,
+            fontWeight: design.font.weights.medium,
+            cursor: 'pointer',
+            padding: 0,
+          }}
+        >
+          ← Back
+        </button>
+      </div>
+
+      {/* Error Content */}
+      <div
+        style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          padding: design.spacing.lg,
+          textAlign: 'center',
+        }}
+      >
+        <div
+          style={{
+            backgroundColor: design.colors.background,
+            borderRadius: design.radius.lg,
+            padding: design.spacing.xl,
+            boxShadow: design.shadow.card,
+            maxWidth: '400px',
+            width: '100%',
+          }}
+        >
+          <div
+            style={{
+              fontSize: design.font.sizes.xl,
+              fontWeight: design.font.weights.bold,
+              color: design.colors.danger,
+              marginBottom: design.spacing.md,
+            }}
+          >
+            Unable to fetch results
+          </div>
+          <div
+            style={{
+              fontSize: design.font.sizes.base,
+              color: design.colors.textSecondary,
+              marginBottom: design.spacing.lg,
+            }}
+          >
+            Please try again
+          </div>
+          <button
+            onClick={() => window.location.reload()}
+            style={{
+              backgroundColor: design.colors.primary,
+              color: 'white',
+              border: 'none',
+              borderRadius: design.radius.sm,
+              padding: design.spacing.md,
+              fontSize: design.font.sizes.base,
+              fontWeight: design.font.weights.medium,
+              cursor: 'pointer',
+              width: '100%',
+            }}
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
 
   // Skeleton loading component
   const SkeletonLoader = () => (
@@ -300,6 +428,11 @@ const SafetyChecker: React.FC = () => {
     </div>
   );
 
+  // Show error fallback if there's an error
+  if (!loading && hasError) {
+    return <ErrorFallback />;
+  }
+
   return loading ? <SkeletonLoader /> : (
     <div
       style={{
@@ -383,10 +516,10 @@ const SafetyChecker: React.FC = () => {
             style={{
               fontSize: design.font.sizes.xl,
               fontWeight: design.font.weights.bold,
-              color: mockData.status === 'safe' ? design.colors.success : design.colors.danger,
+              color: displayData.status === 'safe' ? design.colors.success : design.colors.danger,
             }}
           >
-            {mockData.status === 'safe' ? 'Safe' : 'Unsafe'}
+            {displayData.status === 'safe' ? 'Safe' : 'Unsafe'}
           </span>
         </div>
       </div>
@@ -446,7 +579,7 @@ const SafetyChecker: React.FC = () => {
                 fontWeight: design.font.weights.normal,
               }}
             >
-              {mockData.url}
+              {displayUrl}
             </span>
           </div>
           
@@ -473,7 +606,7 @@ const SafetyChecker: React.FC = () => {
                 fontWeight: design.font.weights.normal,
               }}
             >
-              {formatDate(mockData.lastChecked)}
+              {lastChecked}
             </span>
           </div>
         </div>
@@ -542,67 +675,61 @@ const SafetyChecker: React.FC = () => {
           </div>
 
           {/* Table Rows */}
-          {mockData.sources.map((source, index) => (
-            <div key={index}>
+          <div>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: `${design.spacing.sm} 0`,
+              }}
+            >
+              <span
+                style={{
+                  fontSize: design.font.sizes.base,
+                  color: design.colors.textPrimary,
+                  fontWeight: design.font.weights.normal,
+                }}
+              >
+                Google Safe Browsing
+              </span>
               <div
                 style={{
                   display: 'flex',
-                  justifyContent: 'space-between',
                   alignItems: 'center',
-                  padding: `${design.spacing.sm} 0`,
+                  gap: design.spacing.xs,
                 }}
               >
+                <div
+                  style={{
+                    width: '12px',
+                    height: '12px',
+                    borderRadius: '50%',
+                    backgroundColor: displayData.status === 'safe' ? design.colors.success : design.colors.danger,
+                  }}
+                />
                 <span
                   style={{
                     fontSize: design.font.sizes.base,
-                    color: design.colors.textPrimary,
-                    fontWeight: design.font.weights.normal,
+                    color: displayData.status === 'safe' ? design.colors.success : design.colors.danger,
+                    fontWeight: design.font.weights.medium,
                   }}
                 >
-                  {source.name}
+                  {displayData.status === 'safe' ? 'Safe' : 'Unsafe'}
                 </span>
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: design.spacing.xs,
-                  }}
-                >
-                  <div
-                    style={{
-                      width: '12px',
-                      height: '12px',
-                      borderRadius: '50%',
-                      backgroundColor: source.result === 'safe' ? design.colors.success : design.colors.danger,
-                    }}
-                  />
-                  <span
-                    style={{
-                      fontSize: design.font.sizes.base,
-                      color: source.result === 'safe' ? design.colors.success : design.colors.danger,
-                      fontWeight: design.font.weights.medium,
-                    }}
-                  >
-                    {source.result === 'safe' ? 'Safe' : 'Unsafe'}
-                  </span>
-                </div>
               </div>
-              
-              {/* Row divider (except for last row) */}
-              {index < mockData.sources.length - 1 && (
-                <div
-                  style={{
-                    height: '1px',
-                    backgroundColor: design.colors.border,
-                    margin: `${design.spacing.sm} 0`,
-                  }}
-                />
-              )}
             </div>
-          ))}
+          </div>
         </div>
       </div>
       </div>
+      
+      {/* Toast Notification */}
+      <ToastNotification
+        message="Something went wrong while checking the URL. Please try again."
+        visible={showToast}
+        onClose={() => setShowToast(false)}
+      />
     </div>
   );
 };

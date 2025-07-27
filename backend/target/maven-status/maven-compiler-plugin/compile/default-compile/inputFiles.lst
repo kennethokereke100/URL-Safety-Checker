@@ -1,5 +1,6 @@
 /Users/kennethokereke/Desktop/URL-Safety-Checker/backend/src/main/java/com/example/url_safety_checker/UrlSafetyCheckerApplication.java
 /Users/kennethokereke/Desktop/URL-Safety-Checker/backend/src/main/java/com/example/url_safety_checker/config/RestTemplateConfig.java
+/Users/kennethokereke/Desktop/URL-Safety-Checker/backend/src/main/java/com/example/url_safety_checker/config/WebConfig.java
 /Users/kennethokereke/Desktop/URL-Safety-Checker/backend/src/main/java/com/example/url_safety_checker/controller/UrlCheckController.java
 /Users/kennethokereke/Desktop/URL-Safety-Checker/backend/src/main/java/com/example/url_safety_checker/model/CheckResult.java
 /Users/kennethokereke/Desktop/URL-Safety-Checker/backend/src/main/java/com/example/url_safety_checker/service/UrlCheckService.java

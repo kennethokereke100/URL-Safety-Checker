@@ -18,7 +18,7 @@ const LaunchScreen: React.FC<LaunchScreenProps> = ({ showToast }) => {
     
     // Validate domain format using utility function
     if (!isValidDomain(trimmedInput)) {
-      showToast('Please enter a valid website address:\nexample.com, www.example.com or http://www.example.com');
+      showToast('Please enter a valid website address:\nexample.com, www.example.com, http://www.example.com\nor any valid domain with optional path');
       return;
     }
     
