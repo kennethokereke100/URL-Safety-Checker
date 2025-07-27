@@ -1,0 +1,81 @@
+{
+  "colors": {
+    "primary": "#0052FF",
+    "primaryHover": "#0040CC",
+    "primaryLight": "#E5EDFF",
+    "secondary": "#F5F7FA",
+    "background": "#FFFFFF",
+    "backgroundAlt": "#F8FAFC",
+    "textPrimary": "#111827",
+    "textSecondary": "#6B7280",
+    "textMuted": "#9CA3AF",
+    "border": "#E5E7EB",
+    "warning": "#FACC15",
+    "danger": "#EF4444",
+    "success": "#22C55E",
+    "info": "#3B82F6",
+    "cardBackground": "#FFFFFF",
+    "sidebarBackground": "#F9FAFB",
+    "sidebarActive": "#E5EDFF",
+    "disabled": "#9CA3AF",
+    "black": "#000000"
+  },
+  "font": {
+    "family": "Inter, system-ui, sans-serif",
+    "sizes": {
+      "xs": "12px",
+      "sm": "14px",
+      "base": "16px",
+      "lg": "18px",
+      "xl": "20px",
+      "2xl": "24px"
+    },
+    "weights": {
+      "normal": 400,
+      "medium": 500,
+      "semibold": 600,
+      "bold": 700
+    }
+  },
+  "spacing": {
+    "xs": "4px",
+    "sm": "8px",
+    "md": "16px",
+    "lg": "24px",
+    "xl": "32px"
+  },
+  "radius": {
+    "sm": "6px",
+    "md": "8px",
+    "lg": "12px"
+  },
+  "shadow": {
+    "card": "0 1px 3px rgba(0, 0, 0, 0.05)",
+    "dropdown": "0 4px 6px rgba(0, 0, 0, 0.1)",
+    "modal": "0 10px 25px rgba(0, 0, 0, 0.15)"
+  },
+  "components": {
+    "button": {
+      "padding": "8px 16px",
+      "borderRadius": "6px",
+      "fontWeight": "500",
+      "textTransform": "none"
+    },
+    "input": {
+      "padding": "10px 14px",
+      "borderRadius": "6px",
+      "borderColor": "#E5E7EB",
+      "background": "#FFFFFF"
+    },
+    "card": {
+      "background": "#FFFFFF",
+      "borderRadius": "8px",
+      "padding": "16px",
+      "shadow": "0 1px 3px rgba(0, 0, 0, 0.05)"
+    },
+    "toast": {
+      "errorBackground": "#EF4444",
+      "errorText": "#FFFFFF"
+    }
+  }
+} 
